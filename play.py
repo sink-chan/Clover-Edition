@@ -12,6 +12,7 @@ from getconfig import config, setting_info
 from storymanager import Story
 from utils import *
 from gpt2generator import GPT2Generator
+from gptneogenerator import GPTNeoGenerator
 from interface import instructions
 
 # add color for windows users that install colorama
@@ -61,7 +62,7 @@ def get_generator():
                     model = models[0]
                     logger.info("Using model: " + str(model))
                 assert isinstance(model, Path)
-            generator = GPT2Generator(
+            generator = GPTNeoGenerator(
                 model_path=model,
                 generate_num=settings.getint("generate-num"),
                 temperature=settings.getfloat("temp"),
@@ -363,7 +364,7 @@ def print_intro():
 
 class GameManager:
 
-    def __init__(self, gen: GPT2Generator):
+    def __init__(self, gen: GPTNeoGenerator):
         self.generator = gen
         self.story, self.context, self.prompt = None, None, None
 
