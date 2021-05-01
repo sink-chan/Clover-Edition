@@ -25,11 +25,15 @@ MODEL_CLASSES = {
 def memory_merge(prompt, context, tokenizer, device, maxHistory=2048):
     assert (prompt + context)
 
-    ids = tokenizer(prompt + context, return_tensors="pt").input_ids.to(device)
-    
-    if ids.shape[1] > maxHistory:
-        logger.error("CONTEXT IS TOO LONG ERROR")
-        ids = ids[-maxHistory:]
+    ids = tokenizer(prompt + "\n" + context, return_tensors="pt", add_prefix_space=True, add_special_tokens=False,).input_ids.to(device)
+    print(ids)
+
+    # Truncate to max length if needed.
+    ids = ids[-maxHistory:]
+
+    #if ids.shape[1] > maxHistory:
+    #    logger.error("CONTEXT IS TOO LONG ERROR")
+    #    ids = ids[-maxHistory:]
     return ids
 
 
@@ -52,10 +56,14 @@ def sample_sequence(
         'temp: {}    top_k: {}    top_p: {}    rep-pen: {}'.format(temperature, top_k, top_p, repetition_penalty))
 
     max_length = context.shape[1] + length # check to see if greater than 2048?
-    print(context.shape[1])
-    print(max_length)
+
+    if settings.getboolean('force-cpu'):
+        context = context.long().cpu()
+    else:
+        context = context.long().cuda()
+
     out = model.generate(
-        context.long().cpu(),
+        context,
         do_sample=True,
         min_length=max_length,
         max_length=max_length,
@@ -68,7 +76,7 @@ def sample_sequence(
         use_cache=True,
         pad_token_id=tokenizer.eos_token_id,
     ).long()
-    print(out.shape[1])
+
     generated = tokenizer.decode(out[0])
 
     return generated

@@ -11,7 +11,7 @@ import torch
 from getconfig import config, setting_info
 from storymanager import Story
 from utils import *
-from gpt2generator import GPT2Generator
+#from gpt2generator import GPT2Generator
 from gptneogenerator import GPTNeoGenerator
 from interface import instructions
 
